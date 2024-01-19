@@ -1,0 +1,103 @@
+$(document).ready(function(e) {
+  
+  $('#filtrar_Operarios').keyup(function () {
+    var rex = new RegExp($(this).val(), 'i');
+    $('.buscar tr').hide();
+    $('.buscar tr').filter(function () {
+      return rex.test($(this).text());
+    }).show();
+  });
+
+  $('#FiltroOperario_Pais').multiselect({
+    includeSelectAllOption: true,
+    enableFiltering: true,
+    selectAllText: 'Seleccionar Todos',
+    nonSelectedText: 'Seleccione...',
+    nSelectedText: ' Todos',
+    buttonWidth: '100%',
+    enableCaseInsensitiveFiltering: true,
+    maxHeight: 400,
+    dropUp: true
+  });
+  d_planta = $("#FiltroOperario_Planta").val();
+  
+  d_estado = $("#FiltroOperarios_Estado").val();
+  d_area = $("#FiltroOperarios_Area").val();
+  $.ajax({
+    type:"POST",
+    url:"f_operariosListar.php",
+    beforeSend: function() {
+      $(".info_cargarOperariosListar").html(loader());
+    },
+    data:{ estado: d_estado, area: d_area, planta: d_planta },
+    success: function(data) {
+      $(".info_cargarOperariosListar").html(data);
+      $("#tbl_Operarios").tablesorter();
+    },
+    error: function(er1, er2, er3) {
+      console.log(er2+"-"+er3);
+    }
+  });
+  
+  $("body").on("click", "#Btn_OperariosBuscar", function(e){
+    e.preventDefault();
+    d_planta = $("#FiltroOperario_Planta").val();
+
+    d_estado = $("#FiltroOperarios_Estado").val();
+    d_area = $("#FiltroOperarios_Area").val();
+    d_subArea = $("#FiltroOperarios_SubAreaNombre").val();
+    $.ajax({
+      type:"POST",
+      url:"f_operariosListar.php",
+      beforeSend: function() {
+        $(".info_cargarOperariosListar").html(loader());
+      },
+      data:{ estado: d_estado, area: d_area, subArea: d_subArea , planta: d_planta },
+      success: function(data) {
+        $(".info_cargarOperariosListar").html(data);
+        $("#tbl_Operarios").tablesorter();
+      },
+      error: function(er1, er2, er3) {
+        console.log(er2+"-"+er3);
+      }
+    });
+  });
+
+  
+  $("body").on("change", "#FiltroOperario_Pais", function(e){
+    e.preventDefault();
+    
+    d_pais = $(this).val();
+    d_modulo = $(this).attr('data-mod');
+    $.ajax({
+			type:"POST",
+			url:"f_cargarFiltroPlantas.php",
+			beforeSend: function() {
+				$(".e_cargarFiltroOperarioPlantas").html(loader());
+			},
+			data:{ d_pais: d_pais, modulo: d_modulo },
+			success: function(data) {
+				$(".e_cargarFiltroOperarioPlantas").html(data);
+				$('#FiltroOperario_Planta').multiselect({
+					enableCaseInsensitiveFiltering: true,
+					includeSelectAllOption: true,
+					enableFiltering: true,
+					selectAllText: 'Seleccionar Todos',
+					nonSelectedText: 'Seleccione...',
+					nSelectedText: ' Todos',
+					buttonWidth: '100%',
+					maxHeight: 300,
+					dropUp: true
+				});
+			},
+			error: function(er1, er2, er3) {
+				console.log(er2+"-"+er3);
+			}
+		});		
+  });
+  
+
+  $("body").on("click", ".e_cargarOperarios", function(e){
+    e.preventDefault();
+    
+    d_codigo = $(this).attr("da
